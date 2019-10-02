@@ -18,8 +18,6 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
-stack = util.Stack()
-visited_states = []
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -72,7 +70,10 @@ def tinyMazeSearch(problem):
     s = Directions.SOUTH
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
-global final_result
+
+# def generalSearch(problem, )
+# def GeneralSearch(problem, )
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -83,26 +84,29 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
     """
+    # result = depthFirstSearchHelper(problem, problem.getStartState())
+    # return result[1]
+    ## the two line above is using recursive calling
+    stack = util.Stack()
     path = []
-    result = depthFirstSearchHelper(problem, problem.getStartState())
-    return result[1]
+    direction = []
+    visited_states = []
+    stack.push((problem.getStartState(),direction))
+    ## pushing inital state
 
+    while stack.isEmpty() == False:
+        (current_state, direction) = stack.pop()
+        if problem.isGoalState(current_state):
+            return direction
+        if current_state not in visited_states:
+            visited_states.append(current_state)
+            for successor in problem.getSuccessors(current_state):
+                newpath =  direction + [successor[1]]
+                stack.push((successor[0], newpath))
+    return path
+
+#the helper function will required a global visited_states list
 def depthFirstSearchHelper(problem, current_state):
-    # print("################################################################################################")
-    # print "Start:", problem.getStartState()
-    # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    # print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    # print "stack list:", stack.list
-    # print "visited states list", visited_states
-    # print("################################################################################################\n\n")
-    ## this mean we are at the inital state
-    # if stack.isEmpty() == True:
-    #     current_state = problem.getStartState()
-    #     direction = []
-    # else:
-    #     (current_state, direction) = stack.pop()
-        #print("poped:", current_state, direction)
-
     result = (False, [])
     if problem.isGoalState(current_state) == True:
         return (True, [])
@@ -111,52 +115,62 @@ def depthFirstSearchHelper(problem, current_state):
             visited_states.append(current_state)
             for successor in problem.getSuccessors(current_state):
                 #successor = ((x,y),"Direction", weight)
-                if successor[0] not in visited_states:
-                    #convert string to list
-                    #stack.push((successor[0], [successor[1]]))
-                    #problem.startState = successor[0]
-                    #print("current path:", path)
+                if successor[0] not in visited_states and successor[0]:
                     result = depthFirstSearchHelper(problem, successor[0])
-                    #print(result)
                     if result[0] == True:
                         result = (True , [successor[1]] + result[1])
+                        #print(result[1])
                         return result
-    return result
-
-
-    #     (current_state, direction) = stack.pop()
-    #     if current_state not in visited_states:
-    #         visited_states.append(current_state)
-    #         problem.startState = current_state
-    #         path = path + direction
-    #         for successor in problem.getSuccessors(current_state):
-    #             if successor[0] not in visited_states and successor[0] not in stack.list:
-    #                 successor_direction = [successor[1]]
-    #                 stack.push((successor[0], successor_direction))
-    #         path = depthFirstSearchHelper(problem, path)
-    # return path
-    # else:
-    #     if current_state not in visited_states:
-    #         problem.startState = current_state
-    #         path = path + direction
-    #         visited_states.append(current_state)
-    #         list_of_successors = problem.getSuccessors(current_state)
-    #         for successor in list_of_successors:
-    #             if successor[0] not in visited_states:
-    #                 successor_direction = [successor[1]]
-    #                 stack.push((successor[0],successor_direction))
-    #     path = depthFirstSearchHelper(problem, path)
-    # return path
+                close_set.append(successor[0])
+        return result
+###########################
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
+    stack = util.Queue()
+    path = []
+    direction = []
+    visited_states = []
+    stack.push((problem.getStartState(),direction))
+    ## pushing inital state
+
+    while stack.isEmpty() == False:
+        (current_state, direction) = stack.pop()
+        if problem.isGoalState(current_state):
+            return direction
+        if current_state not in visited_states:
+            visited_states.append(current_state)
+            for successor in problem.getSuccessors(current_state):
+                newpath =  direction + [successor[1]]
+                stack.push((successor[0], newpath))
+    return path
     util.raiseNotDefined()
-    "*** YOUR CODE HERE ***"
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    # this priority quque it pick the lowest value in the priority
+    fringe = util.PriorityQueue()
+    visited_states = []
+    direction = []
+    path = []
+    total_cost  = 0
+    start_cost = 0
+    ## inital state
+    start_state = (problem.getStartState(), direction, start_cost)
+    fringe.push(start_state, start_cost)
+    while fringe.isEmpty() == False:
+        (current_state, direction, cost) = fringe.pop()
+        if problem.isGoalState(current_state) == True:
+            path = path + direction
+            total_cost = total_cost  + cost
+            return path
+        if current_state not in visited_states:
+            visited_states.append(current_state)
+            for successor in problem.getSuccessors(current_state):
+                newpath =  direction + [successor[1]]
+                newcost = cost + successor[2]
+                fringe.push((successor[0], newpath, newcost), newcost)
+    return path
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
@@ -166,8 +180,37 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()
+    visited_states = []
+    direction = []
+    path = []
+    total_cost  = 0
+
+    #start_priority = heuristic(problem.getStartState(, problem)
+    ## inital state
+    start_state = (problem.getStartState(), direction, 0)
+    start_priority = heuristic(problem.getStartState(), problem)
+    fringe.push(start_state, start_priority)
+    while fringe.isEmpty() == False:
+        (current_state, direction, cost) = fringe.pop()
+        if problem.isGoalState(current_state) == True:
+            path = path + direction
+            total_cost = total_cost  + cost
+            return path
+        if current_state not in visited_states:
+            visited_states.append(current_state)
+            list_of_successors  = problem.getSuccessors(current_state)
+            #print("current state: ", current_state, "its successors: ", list_of_successors)
+            for successor in list_of_successors:
+                if successor[0] not in visited_states:
+                    newpath =  direction + [successor[1]]
+                    newcost = cost + successor[2]
+                    heuristic_value  = heuristic(successor[0], problem)
+                    #print("successor: ", successor[0], "its heuristic: ", heuristic_value)
+                    priority = cost + successor[2] + heuristic_value
+                    fringe.push((successor[0], newpath, newcost), priority)
+            #print("###########################################################\n\n")
+    return path
 
 
 # Abbreviations
