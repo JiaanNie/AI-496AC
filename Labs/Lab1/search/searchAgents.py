@@ -480,6 +480,14 @@ class NewState:
     def getPacmanPosition(self):
         return self.state[0]
 def foodHeuristic(state, problem):
+    # heuristic_value = 0
+    # for i in range(foodGrid.height):
+    #     for j in range(foodGrid.width):
+    #         if foodGrid[j][i]:
+    #             heuristic_value = max(heuristic_value,\
+    #                               mazeDistance((j, i), position,\
+    #                               NewState(state, problem.walls)))
+    # return heuristic_value
 
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -509,15 +517,6 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    # heuristic_value = 0
-    # for i in range(foodGrid.height):
-    #     for j in range(foodGrid.width):
-    #         if foodGrid[j][i]:
-    #             heuristic_value = max(heuristic_value,\
-    #                               mazeDistance((j, i), position,\
-    #                               NewState(state, problem.walls)))
-    # return heuristic_value
-
     x, y = position ## position of currentPosition of the pac man
     foodList = list(foodGrid.asList()) #  this will convet location that has food into list of x,y coordinates
     #foods_location_list
